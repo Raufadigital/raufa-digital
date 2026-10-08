@@ -1,0 +1,41 @@
+RAUFA DIGITAL - SETUP SUPABASE
+================================
+
+VERSI INI SUDAH DISESUAIKAN DENGAN PROJECT SUPABASE RAUFA DIGITAL.
+
+1. Buka js/config.js
+2. Cari:
+   supabasePublishableKey: "TEMPEL_PUBLISHABLE_KEY_DI_SINI"
+3. Ganti hanya teks tersebut dengan Publishable key dari:
+   Supabase > Project Settings > API Keys > Publishable key
+4. Jangan masukkan Secret key/service_role key.
+5. Simpan file.
+
+AKUN ADMIN
+- Akun admin sudah dibuat di Supabase.
+- Role admin sudah disimpan di public.profiles.
+- Login admin: admin/login.html
+
+MEMBER
+- Pendaftaran member memakai Supabase Auth.
+- Member baru otomatis mendapat role member melalui trigger.
+
+JIKA MEMBER BARU TIDAK MUNCUL DI profiles
+- Buka SQL Editor Supabase.
+- Jalankan isi file supabase/01-auth-profiles.sql satu kali.
+
+DEPLOY KE GITHUB PAGES
+- Upload ISI folder website, bukan file ZIP.
+- Pastikan index.html berada di root repository.
+- Setelah Publishable key diisi, upload folder versi ini.
+
+LINK PENTING
+- Website: index.html
+- Login Member: login.html
+- Daftar Member: register.html
+- Login Admin: admin/login.html
+- Dashboard Admin: admin/dashboard.html
+
+CATATAN KEAMANAN
+Publishable key memang boleh berada di frontend. Secret key/service_role key
+JANGAN PERNAH dimasukkan ke website atau dibagikan.

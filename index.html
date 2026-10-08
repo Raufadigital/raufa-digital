@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Raufa Digital — Produk Digital Anak</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="navbar">
+  <a class="brand" href="index.html"><span class="brand-mark">RD</span><span>Raufa <b>Digital</b></span></a>
+  <nav><a href="index.html">Home</a><a href="products.html">Katalog</a><a href="membership.html">Member</a><a href="contact.html">Kontak</a></nav>
+  <div class="nav-actions"><button id="themeBtn" class="icon-btn">☾</button><a class="btn btn-outline" href="login.html">Login Member</a></div>
+</header>
+<main>
+<section class="hero">
+  <div class="hero-copy"><div class="eyebrow hero-eyebrow">PRINTABLE • EDUKASI • DIGITAL</div>
+  <div class="hero-kicker">✨ Belajar lebih menyenangkan</div><h1>Aktivitas belajar anak jadi lebih <span>seru & praktis.</span></h1>
+  <p>Temukan worksheet printable untuk membaca, berhitung, mewarnai, aktivitas islami, dan paket premium.</p>
+  <div class="actions"><a class="btn" href="products.html">Lihat Katalog</a><a class="btn btn-light" href="membership.html">Gabung Member</a></div></div>
+  <div class="hero-visual-wrap">
+    <div class="floating-shape shape-one">✏️</div><div class="floating-shape shape-two">⭐</div><div class="floating-shape shape-three">🧩</div>
+    <div class="hero-card hero-card-animated"><div class="hero-badge">BEST SELLER</div><div class="hero-icon">📚</div><div class="hero-mini-stack"><span></span><span></span><span></span></div><h3>39.000+ Aktivitas Anak</h3><p>Belajar • Bermain • Berkarya</p><div class="hero-card-line"><i></i><i></i><i></i></div></div>
+  </div>
+</section>
+<section class="section category-section"><div class="section-head"><div><div class="eyebrow">KATEGORI</div><h2>Pilih aktivitas favorit</h2><p class="section-subtitle">Pilih kategori untuk menjelajahi produk Raufa Digital</p></div><a href="products.html">Lihat semua →</a></div>
+<div id="homeCategories" class="category-icon-grid"></div></section>
+<section class="section soft"><div class="section-head"><div><div class="eyebrow">PRODUK UNGGULAN</div><h2>Favorit pelanggan</h2></div><a href="products.html">Katalog lengkap →</a></div><div id="featured" class="visual-product-grid"></div></section>
+<section class="member-cta"><div><div class="eyebrow">RAUFA MEMBER</div><h2>Simpan produk yang sudah dibeli dalam satu akun.</h2><p>Login untuk melihat pesanan, produk saya, dan link download.</p></div><a class="btn" href="register.html">Daftar Member</a></section>
+</main>
+<footer><b>Raufa Digital</b><span>Produk digital edukasi untuk keluarga Indonesia.</span><span>© 2026 Raufa Digital</span></footer>
+<script src="js/config.js"></script><script>document.addEventListener("DOMContentLoaded",()=>{const el=document.getElementById("homeCategories");if(el&&window.CONFIG){el.innerHTML=CONFIG.categories.map(c=>`<a class="category-tile" href="products.html?cat=${encodeURIComponent(c.name)}"><span class="category-icon">${c.icon}</span><b>${c.name}</b><small>${c.description}</small></a>`).join("");}});</script><script src="js/products.js"></script><script src="js/script.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="js/supabase-client.js"></script></body></html>

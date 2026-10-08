@@ -1,0 +1,29 @@
+RAUFA DIGITAL - KATALOG VISUAL MUDAH EDIT
+
+1. HARGA TIDAK DITAMPILKAN PADA KARTU KATALOG.
+   Harga tetap ada pada halaman detail produk jika ingin ditampilkan.
+
+2. KATEGORI:
+   Edit di js/config.js -> categories.
+   Contoh:
+   { name: "Mewarnai", icon: "🎨", description: "Kreativitas anak" }
+
+3. PRODUK:
+   Edit di js/config.js -> catalogProducts.
+   Yang bisa diubah:
+   - name
+   - category
+   - price
+   - icon
+   - description
+   - lynk_url
+   - featured
+
+4. TOMBOL PRODUK:
+   Pelanggan klik kartu produk -> halaman detail -> Beli di Lynk.
+
+5. Toko Lynk:
+   https://lynk.id/fadilyusdi
+
+CATATAN:
+Versi ini meniru konsep katalog visual dari referensi: banyak item berbentuk tile/icon dan harga tidak memenuhi tampilan katalog.
