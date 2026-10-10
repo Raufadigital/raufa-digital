@@ -29,9 +29,34 @@ document.addEventListener('DOMContentLoaded', async ()=>{
   if(login) login.addEventListener('submit', async e=>{
     e.preventDefault();
     const email=document.getElementById('email').value.trim(), password=document.getElementById('password').value;
-    const {error}=await sb.auth.signInWithPassword({email,password});
-    if(error){msg.textContent='Email atau password salah / akun belum terverifikasi.';return;}
-    const next=new URLSearchParams(location.search).get('next')||'dashboard.html'; location.href=next;
+    
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      msg.textContent = 'Email atau password salah / akun belum terverifikasi.';
+      return;
+    }
+
+    const { data: profile, error: profileError } = await sb
+      .from('profiles')
+      .select('role, approval_status')
+      .eq('id', data.user.id)
+      .single();
+
+    if (profileError || !profile) {
+      await sb.auth.signOut();
+      msg.textContent = 'Profil akun tidak ditemukan. Silakan hubungi admin.';
+      return;
+    }
+
+    if (profile.role !== 'admin' && profile.approval_status !== 'approved') {
+      await sb.auth.signOut();
+      msg.textContent = 'Akun Anda masih menunggu persetujuan admin.';
+      return;
+    }
+
+    const next = new URLSearchParams(location.search).get('next') || 'dashboard.html';
+    location.href = next;
   });
   if(reset) reset.addEventListener('submit', async e=>{
     e.preventDefault(); const email=document.getElementById('email').value.trim();
