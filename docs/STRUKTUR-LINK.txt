@@ -1,0 +1,27 @@
+STRUKTUR LINK RAUFA DIGITAL
+
+PUBLIC
+/                       Home
+/products.html          Katalog
+/product-detail.html    Detail produk
+/contact.html            Kontak
+
+MEMBER
+/login.html             Login Member
+/register.html          Daftar Member
+/forgot-password.html   Lupa Password
+/dashboard.html         Dashboard Member
+/my-products.html       Produk Saya
+/orders.html            Riwayat Pesanan
+/membership.html        Membership
+
+ADMIN
+/admin/login.html       Login Admin
+/admin/dashboard.html   Dashboard Admin
+/admin/products.html    Kelola Produk
+/admin/orders.html      Kelola Pesanan
+/admin/members.html     Kelola Member
+
+LYNK
+Link pembelian produk berada di js/config.js pada bagian lynkProducts.
+Link membership berada pada CONFIG.lynkMemberUrl.

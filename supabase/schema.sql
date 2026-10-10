@@ -1,0 +1,31 @@
+create extension if not exists pgcrypto;
+do $$ begin create type public.user_role as enum ('member','admin'); exception when duplicate_object then null; end $$;
+do $$ begin create type public.order_status as enum ('pending','paid','failed','expired','cancelled'); exception when duplicate_object then null; end $$;
+create table if not exists public.profiles (id uuid primary key references auth.users(id) on delete cascade,full_name text,email text,role public.user_role not null default 'member',created_at timestamptz not null default now());
+create table if not exists public.products (id uuid primary key default gen_random_uuid(),name text not null,slug text unique,category text,description text,price bigint not null check(price>=0),lynk_url text,icon text default '📚',file_path text,featured boolean not null default false,is_active boolean not null default true,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+create table if not exists public.orders (id uuid primary key default gen_random_uuid(),user_id uuid not null references public.profiles(id) on delete cascade,status public.order_status not null default 'pending',gross_amount bigint not null check(gross_amount>=0),midtrans_order_id text unique,payment_type text,transaction_id text,paid_at timestamptz,created_at timestamptz not null default now(),updated_at timestamptz not null default now());
+create table if not exists public.order_items (id uuid primary key default gen_random_uuid(),order_id uuid not null references public.orders(id) on delete cascade,product_id uuid not null references public.products(id),product_name text not null,unit_price bigint not null,quantity int not null default 1);
+create table if not exists public.product_access (id uuid primary key default gen_random_uuid(),user_id uuid not null references public.profiles(id) on delete cascade,product_id uuid not null references public.products(id) on delete cascade,order_id uuid references public.orders(id) on delete set null,granted_at timestamptz not null default now(),unique(user_id,product_id));
+create or replace function public.handle_new_user() returns trigger language plpgsql security definer set search_path=public as $$ begin insert into public.profiles(id,full_name,email) values(new.id,new.raw_user_meta_data->>'full_name',new.email) on conflict(id) do update set full_name=excluded.full_name,email=excluded.email; return new; end; $$;
+drop trigger if exists on_auth_user_created on auth.users; create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_user();
+create or replace function public.is_admin() returns boolean language sql stable security definer set search_path=public as $$ select exists(select 1 from public.profiles where id=auth.uid() and role='admin'); $$;
+create or replace function public.grant_access_after_paid() returns trigger language plpgsql security definer set search_path=public as $$ begin if new.status='paid' and old.status is distinct from new.status then insert into public.product_access(user_id,product_id,order_id) select new.user_id,oi.product_id,new.id from public.order_items oi where oi.order_id=new.id on conflict(user_id,product_id) do nothing; end if; return new; end; $$;
+drop trigger if exists grant_product_access on public.orders; create trigger grant_product_access after update on public.orders for each row execute function public.grant_access_after_paid();
+alter table public.profiles enable row level security; alter table public.products enable row level security; alter table public.orders enable row level security; alter table public.order_items enable row level security; alter table public.product_access enable row level security;
+drop policy if exists profiles_own on public.profiles; create policy profiles_own on public.profiles for select using(id=auth.uid() or public.is_admin());
+drop policy if exists products_read on public.products; create policy products_read on public.products for select using(is_active=true or public.is_admin());
+drop policy if exists products_admin_insert on public.products; create policy products_admin_insert on public.products for insert with check(public.is_admin());
+drop policy if exists products_admin_update on public.products; create policy products_admin_update on public.products for update using(public.is_admin()) with check(public.is_admin());
+drop policy if exists products_admin_delete on public.products; create policy products_admin_delete on public.products for delete using(public.is_admin());
+drop policy if exists orders_own on public.orders; create policy orders_own on public.orders for select using(user_id=auth.uid() or public.is_admin());
+drop policy if exists items_own on public.order_items; create policy items_own on public.order_items for select using(exists(select 1 from public.orders o where o.id=order_id and (o.user_id=auth.uid() or public.is_admin())));
+drop policy if exists access_own on public.product_access; create policy access_own on public.product_access for select using(user_id=auth.uid() or public.is_admin());
+insert into public.products(name,slug,category,description,price,icon,featured) values
+('39.000+ Aktivitas Anak','39000-aktivitas-anak','Worksheet Anak','Koleksi aktivitas printable untuk membaca, berhitung, mewarnai, dan aktivitas seru lainnya.',39000,'📚',true),
+('Worksheet Islami Anak','worksheet-islami-anak','Islami','Aktivitas islami untuk membantu anak belajar dengan cara menyenangkan.',29000,'🌙',true),
+('Matematika Dasar Usia 2–9 Tahun','matematika-dasar-2-9','Matematika','Latihan angka dan konsep matematika dasar sesuai tahap perkembangan anak.',25000,'🔢',true),
+('Paket Mewarnai Anak','paket-mewarnai-anak','Mewarnai','Kumpulan lembar mewarnai dengan tema ramah anak.',19000,'🎨',false),
+('Paket Bundling Worksheet Premium','paket-bundling-premium','Bundling','Bundle premium berisi membaca, berhitung, menggambar, islami, dan aktivitas lainnya.',79000,'🎁',true),
+('Belajar Membaca Pemula','belajar-membaca-pemula','Worksheet Anak','Latihan mengenal huruf, suku kata, dan membaca sederhana.',22000,'🔤',false)
+on conflict(slug) do nothing;
+-- Setelah akun admin dibuat: update public.profiles set role='admin' where email='EMAIL_ADMIN_ANDA';

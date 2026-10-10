@@ -1,0 +1,18 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Dashboard — Raufa Digital</title><link rel="stylesheet" href="../css/style.css"></head>
+<body><header class="navbar"><a class="brand" href="../index.html"><span class="brand-mark">RD</span><span>Admin <b>Raufa Digital</b></span></a><nav><a class="active" href="dashboard.html">Dashboard</a><a href="products.html">Produk</a><a href="pages.html">Halaman</a><a href="orders.html">Pesanan</a><a href="members.html">Member</a></nav><div class="nav-actions"><a class="btn btn-outline" href="../index.html">Website</a><button class="btn btn-outline" data-admin-logout>Keluar</button></div></header>
+<main class="section"><div class="page-title"><div class="eyebrow">ADMIN</div><h1>Dashboard</h1><p>Selamat datang di panel Admin Raufa Digital.</p></div><div class="dash-grid"><a class="dash-card" href="products.html">📦<b id="productCount">0</b><small>Kelola produk — tambah/edit/hapus</small></a><a class="dash-card" href="pages.html">📝<b>Kelola Halaman</b><small>Tambah dan edit halaman website</small></a><div class="dash-card">👥<b id="memberCount">0</b><small>Member</small></div><div class="dash-card">🧾<b id="orderCount">0</b><small>Pesanan</small></div></div><div id="adminMsg" class="notice"></div></main>
+<script src="../js/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase-client.js"></script><script src="../js/admin-auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async()=>{
+  if(!window.sb) return;
+  const x=await adminUser(); if(!x || x.profile?.role!=='admin') return;
+  const [products,members,orders]=await Promise.all([
+    sb.from('products').select('*',{count:'exact',head:true}),
+    sb.from('profiles').select('*',{count:'exact',head:true}),
+    sb.from('orders').select('*',{count:'exact',head:true})
+  ]);
+  document.getElementById('productCount').textContent=products.count ?? 0;
+  document.getElementById('memberCount').textContent=members.count ?? 0;
+  document.getElementById('orderCount').textContent=orders.count ?? 0;
+});
+</script></body></html>
