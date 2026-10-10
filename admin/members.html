@@ -1,1 +1,109 @@
-<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin Member</title><link rel="stylesheet" href="../css/style.css"></head><body><header class="navbar"><a class="brand" href="dashboard.html"><span class="brand-mark">RD</span><span>Admin <b>Member</b></span></a><a class="btn btn-outline" href="dashboard.html">Dashboard</a><button class="btn btn-outline" data-admin-logout>Keluar</button></header><main class="section"><h1>Kelola Member</h1><div class="table-card"><p>Belum ada data member pada demo.</p></div></main><script src="../js/config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../js/supabase-client.js"></script><script src="../js/admin-auth.js"></script></body></html>
+
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Kelola Member — Raufa Digital</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="navbar">
+  <a class="brand" href="dashboard.html">
+    <span class="brand-mark">RD</span>
+    <span>Admin <b>Member</b></span>
+  </a>
+  <a class="btn btn-outline" href="dashboard.html">Dashboard</a>
+  <button class="btn btn-outline" data-admin-logout>Keluar</button>
+</header>
+
+<main class="section">
+  <h1>Kelola Member</h1>
+  <p>Periksa pendaftaran dan setujui akun member.</p>
+  <div id="msg" class="notice">Memuat data member...</div>
+  <div id="memberList" class="table-card"></div>
+</main>
+
+<script src="../js/config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../js/supabase-client.js"></script>
+<script src="../js/admin-auth.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const msg = document.getElementById('msg');
+  const list = document.getElementById('memberList');
+
+  if (!window.sb) {
+    msg.textContent = 'Supabase belum terhubung.';
+    return;
+  }
+
+  const admin = await adminUser();
+  if (!admin || admin.profile?.role !== 'admin') return;
+
+  async function loadMembers() {
+    msg.textContent = 'Memuat data member...';
+    list.innerHTML = '';
+
+    const { data, error } = await sb
+      .from('profiles')
+      .select('id, name, role, approval_status, created_at')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      msg.textContent = 'Gagal memuat member: ' + error.message;
+      return;
+    }
+
+    const members = (data || []).filter(m => m.role !== 'admin');
+
+    if (!members.length) {
+      msg.textContent = 'Belum ada member yang terdaftar.';
+      return;
+    }
+
+    msg.textContent = 'Jumlah member: ' + members.length;
+
+    list.innerHTML = members.map(m => {
+      const name = String(m.name || 'Member').replace(/[&<>"']/g, c =>
+        ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])
+      );
+      const status = m.approval_status || 'pending';
+      const button = status === 'approved'
+        ? '<span class="tag">Sudah disetujui</span>'
+        : `<button class="btn approve-member" data-id="${m.id}">Setujui</button>`;
+
+      return `<div class="member-row" style="padding:16px 0;border-bottom:1px solid #eee">
+        <b>${name}</b>
+        <p>Status: ${status === 'approved' ? 'Disetujui' : 'Menunggu persetujuan'}</p>
+        ${button}
+      </div>`;
+    }).join('');
+
+    list.querySelectorAll('.approve-member').forEach(button => {
+      button.addEventListener('click', async () => {
+        if (!confirm('Setujui member ini?')) return;
+
+        button.disabled = true;
+        const { error } = await sb
+          .from('profiles')
+          .update({ approval_status: 'approved' })
+          .eq('id', button.dataset.id)
+          .neq('role', 'admin');
+
+        if (error) {
+          msg.textContent = 'Gagal menyetujui member: ' + error.message;
+          button.disabled = false;
+          return;
+        }
+
+        await loadMembers();
+      });
+    });
+  }
+
+  await loadMembers();
+});
+</script>
+</body>
+</html>
