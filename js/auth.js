@@ -23,8 +23,13 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     const password=document.getElementById('password').value;
     const {data,error}=await sb.auth.signUp({email,password,options:{data:{full_name:name}}});
     if(error){msg.textContent=error.message;return;}
-    msg.textContent=data.session?'Akun berhasil dibuat. Mengarahkan...':'Akun dibuat. Silakan cek email untuk verifikasi.';
-    if(data.session) setTimeout(()=>location.href='dashboard.html',600);
+    
+if (data.session) {
+  await sb.auth.signOut();
+}
+
+msg.textContent =
+  'Pendaftaran berhasil. Akun Anda menunggu persetujuan admin. Silakan login setelah akun disetujui.';
   });
   if(login) login.addEventListener('submit', async e=>{
     e.preventDefault();
