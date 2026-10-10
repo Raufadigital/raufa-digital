@@ -4,7 +4,7 @@ async function adminUser(){
   if(userError || !user) return null;
   const {data:profile, error:profileError}=await sb
     .from('profiles')
-    .select('role,full_name,email')
+    .select('role,name')
     .eq('id',user.id)
     .single();
   if(profileError) return {user, profile:null, error:profileError};
